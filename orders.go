@@ -1,6 +1,8 @@
 package loopring
 
-import "net/http"
+import (
+	"net/http"
+)
 
 func UpdateAPIKeyMessage(
 	*EDDSAHashSigner,

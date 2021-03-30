@@ -1,9 +1,5 @@
 package loopring
 
-import "errors"
-
-var ErrNotImplemented = errors.New("not implemented")
-
 type EDDSAHashSigner struct{}
 
 func (s *EDDSAHashSigner) Hash() {}
