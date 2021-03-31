@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/big"
 	"net/http"
 	"net/url"
 	"sort"
+	"strings"
 )
 
 var BASE_API_ENDPOINT = "https://api3.loopring.io/api/v3"
@@ -32,7 +34,7 @@ func contains(s []string, str string) bool {
 	return false
 }
 
-func ConstructSignatureBase(httpMethod string, apiPath string, requestBody string, params ...QueryParamPair) string {
+func ConstructSignatureBase(httpMethod string, apiPath string, params ...QueryParamPair) string {
 	// Make sure http method is supported by Loopring
 	acceptedMethods := []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete}
 	if !contains(acceptedMethods, httpMethod) {
@@ -79,11 +81,22 @@ func ConstructSignatureBase(httpMethod string, apiPath string, requestBody strin
 	}
 
 	// POST/PUT Requests
-	if httpMethod == http.MethodPost || httpMethod == http.MethodPut {
-		parameterString += requestBody
-	}
+	/*
+		if httpMethod == http.MethodPost || httpMethod == http.MethodPut {
+			parameterString += requestBody
+		}
+	*/
 
 	signatureBase += url.QueryEscape(parameterString)
 
 	return signatureBase
+}
+
+func FromBase16(base16 string) []byte {
+	parsedHex := strings.Replace(base16, "0x", "", -1)
+	i, ok := new(big.Int).SetString(parsedHex, 16)
+	if !ok {
+		log.Fatalln("trying to convert from base16 a bad number: ", base16)
+	}
+	return i.Bytes()
 }
