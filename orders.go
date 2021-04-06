@@ -10,22 +10,18 @@ var privateKey string = os.Getenv("LOOPRING_PRIVATE_KEY")
 var publicKeyX string = os.Getenv("LOOPRING_PUBLIC_KEY_X")
 var publicKeyY string = os.Getenv("LOOPRING_PUBLIC_KEY_Y")
 
+type Order struct{}
+
+func (ed *EDDSAHashSigner) serialize_data(order Order) []int {
+	// Extract Order Data
+	panic(ErrNotImplemented)
+}
+
 func UpdateAPIKeyMessage(
 	ed *EDDSAHashSigner,
 	accountID string,
 ) *http.Request {
-	accountIDParam := QueryParamPair{
-		QueryParam: "accountID",
-		Value:      accountID,
-	}
-	var signatureBase string = ConstructSignatureBase(http.MethodGet, "/apiKey", accountIDParam)
-
-	hash := ed.Hash(signatureBase)
-
-	signedHash, err := ed.Sign([]byte(privateKey), hash)
-	if err != nil {
-		panic(err)
-	}
+	panic(ErrNotImplemented)
 }
 
 func CancelOrderMessage(
@@ -33,34 +29,20 @@ func CancelOrderMessage(
 	accountID string,
 	clientOrderId string,
 ) *http.Request {
-	accountIDParam := QueryParamPair{
-		QueryParam: "accountID",
-		Value:      accountID,
-	}
-	clientOrderIdParam := QueryParamPair{
-		QueryParam: "clientOrderId",
-		Value:      clientOrderId,
-	}
-	var signatureBase = ConstructSignatureBase(http.MethodDelete, "/order", accountIDParam, clientOrderIdParam)
-
-	hash := ed.Hash(signatureBase)
-
-	signedHash, err := ed.Sign([]byte(privateKey), hash)
-	if err != nil {
-		panic(err)
-	}
+	panic(ErrNotImplemented)
 }
 
 func SubmitOrderAMMMessage(
 	*EDDSAHashSigner,
 ) {
-
+	panic(ErrNotImplemented)
 }
 
 func OffchainWithdrawalMessage(
 	*EIP712Hasher,
 	*ECDSASigner,
 ) *http.Request {
+	panic(ErrNotImplemented)
 }
 
 func InternalTransferMessage(

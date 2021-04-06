@@ -7,8 +7,13 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"os"
 	"sort"
 	"strings"
+
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/joho/godotenv"
+	"github.com/katzenpost/core/crypto/eddsa"
 )
 
 var BASE_API_ENDPOINT = "https://api3.loopring.io/api/v3"
@@ -99,4 +104,39 @@ func FromBase16(base16 string) []byte {
 		log.Fatalln("trying to convert from base16 a bad number: ", base16)
 	}
 	return i.Bytes()
+}
+
+type UserData struct {
+	address  string
+	password string
+}
+
+func consumeData() UserData {
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+
+	address := os.Getenv("LOOPRING_ACCOUNT_ADDRESS")
+	password := os.Getenv("LOOPRING_ACCOUNT_PASSWORD")
+
+	userData := UserData{}
+	userData.address = address
+	userData.password = password
+
+	return userData
+}
+
+func GenerateLoopringKeyPair() *eddsa.PrivateKey {
+	var userData UserData = consumeData()
+
+	var hashedPassword = crypto.Keccak256Hash([]byte(userData.password))
+	r := strings.NewReader("LOOPRING" + strings.ToLower(userData.address) + hashedPassword.String())
+
+	eddsaKeyPair, err := eddsa.NewKeypair(r)
+	if err != nil {
+		panic(err)
+	}
+
+	return eddsaKeyPair
 }

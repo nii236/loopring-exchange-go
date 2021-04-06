@@ -1,35 +1,50 @@
 package loopring
 
 import (
-	"crypto"
-	"crypto/ed25519"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"math/big"
 
-	eth_crypto "github.com/ethereum/go-ethereum/crypto"
+	"github.com/iden3/go-iden3-crypto/poseidon"
+	"github.com/katzenpost/core/crypto/eddsa"
 )
 
 type EDDSAHashSigner struct{}
 
-func (s *EDDSAHashSigner) Hash(data string) []byte {
-	h := crypto.SHA256.New()
-	h.Write([]byte(data))
-	hash := h.Sum(nil)
+func (s *EDDSAHashSigner) Hash(inputBI [6]*big.Int) *big.Int {
+	hash, err := poseidon.PoseidonHash(inputBI)
+	if err != nil {
+		panic(err)
+	}
+
 	return hash
 }
-func (s *EDDSAHashSigner) Sign(privateKey []byte, msg []byte) ([]byte, error) {
-	signatureBytes := ed25519.Sign([]byte(privateKey), msg)
-	return signatureBytes, nil
+func (s *EDDSAHashSigner) Sign(privateKey *eddsa.PrivateKey, msg []byte) []byte {
+	signatureBytes := privateKey.Sign(msg)
+	return signatureBytes
 }
 
 type ECDSASigner struct{}
 
-func (s *ECDSASigner) Sign() {
+func (s *ECDSASigner) Sign(msg []byte) (r []byte, sig []byte) {
+	curve := elliptic.P256()
+	randReader := rand.Reader
+	newPrivateKey, err := ecdsa.GenerateKey(curve, randReader)
+	if err != nil {
+		panic(err)
+	}
 
+	ro, si, err := ecdsa.Sign(randReader, newPrivateKey, msg)
+	if err != nil {
+		panic(err)
+	}
+
+	return ro.Bytes(), si.Bytes()
 }
 
 type EIP712Hasher struct{}
 
-func (s *EIP712Hasher) Hash(signer string) []byte {
+func (s *EIP712Hasher) Hash() {
 
-	hash := eth_crypto.Keccak256(data)
-	return hash
 }
